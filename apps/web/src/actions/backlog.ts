@@ -11,7 +11,8 @@ import {
   getArchiveFolder,
 } from "@codeplan/core";
 
-const CODEPLAN_PATH = join(process.cwd(), "..", "..", ".codeplan");
+// Use CODEPLAN_DIR env var if set, otherwise default to cwd/.codeplan
+const CODEPLAN_PATH = process.env.CODEPLAN_DIR || join(process.cwd(), ".codeplan");
 
 export async function loadBacklog(): Promise<{
   items: BacklogItem[];

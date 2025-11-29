@@ -1,6 +1,9 @@
 import { loadBacklog } from "@/actions/backlog";
 import { Dashboard } from "@/components/dashboard";
 
+// Force dynamic rendering - data comes from local filesystem
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const { items, config, error } = await loadBacklog();
 

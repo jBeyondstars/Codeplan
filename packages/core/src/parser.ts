@@ -1,4 +1,4 @@
-import matter from "gray-matter";
+import { parse as parseYaml } from "yaml";
 import { BacklogItemSchema, type BacklogItem, type Task } from "./types";
 
 export class ParseError extends Error {
@@ -8,6 +8,26 @@ export class ParseError extends Error {
   ) {
     super(filePath ? `${message} in ${filePath}` : message);
     this.name = "ParseError";
+  }
+}
+
+// Browser-compatible frontmatter parser (replaces gray-matter)
+function parseFrontmatter(markdown: string): { data: Record<string, unknown>; content: string } {
+  const frontmatterRegex = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
+  const match = markdown.match(frontmatterRegex);
+
+  if (!match) {
+    return { data: {}, content: markdown };
+  }
+
+  const yamlContent = match[1];
+  const content = match[2];
+
+  try {
+    const data = parseYaml(yamlContent) as Record<string, unknown>;
+    return { data: data || {}, content };
+  } catch {
+    return { data: {}, content: markdown };
   }
 }
 
@@ -54,7 +74,7 @@ export function parseItem(
   markdown: string,
   filePath?: string,
 ): BacklogItem {
-  const { data: frontmatter, content } = matter(markdown);
+  const { data: frontmatter, content } = parseFrontmatter(markdown);
 
   if (!frontmatter.id) {
     throw new ParseError("Missing required field: id", filePath);
