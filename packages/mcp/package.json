@@ -3,6 +3,13 @@
   "version": "0.1.0",
   "description": "MCP server for Codeplan task management",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/codeplan",
+    "directory": "packages/mcp"
+  },
+  "keywords": ["codeplan", "mcp", "model-context-protocol", "ai", "claude"],
   "bin": {
     "codeplan-mcp": "./dist/index.js"
   },
