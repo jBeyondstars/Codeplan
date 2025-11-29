@@ -1,6 +1,6 @@
 {
   "name": "@codeplan/cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "CLI for initializing and managing Codeplan projects",
   "type": "module",
   "license": "MIT",

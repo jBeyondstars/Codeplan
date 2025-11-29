@@ -29,15 +29,14 @@ export function registerMcpServer(): { success: boolean; message: string } {
   }
 
   try {
-    // Use npx to run the MCP server - no local install required
+    // Register at user level - works across all projects with .codeplan/
     const result = spawnSync(
       "claude",
-      ["mcp", "add", "--scope", "project", "codeplan", "npx", "@codeplan/mcp"],
+      ["mcp", "add", "codeplan", "npx", "@codeplan/mcp"],
       {
         encoding: "utf-8",
         shell: true,
         stdio: "pipe",
-        cwd: process.cwd(),
       }
     );
 

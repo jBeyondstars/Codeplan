@@ -60,31 +60,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   console.log();
 
-  // Handle MCP registration
+  // Handle MCP registration (user-level, works across all projects)
   if (options.skipMcp) {
     console.log(pc.dim("Skipped MCP server registration (--skip-mcp)"));
     printManualMcpInstructions();
   } else {
     console.log(pc.bold("Configuring Claude Code integration..."));
     console.log();
-
-    // Create .claude/settings.json to enable project MCP servers
-    const claudeSettingsDir = path.join(cwd, ".claude");
-    const claudeSettingsPath = path.join(claudeSettingsDir, "settings.json");
-
-    if (!fs.existsSync(claudeSettingsDir)) {
-      fs.mkdirSync(claudeSettingsDir, { recursive: true });
-    }
-
-    const settings = fs.existsSync(claudeSettingsPath)
-      ? JSON.parse(fs.readFileSync(claudeSettingsPath, "utf-8"))
-      : {};
-
-    if (!settings.enableAllProjectMcpServers) {
-      settings.enableAllProjectMcpServers = true;
-      fs.writeFileSync(claudeSettingsPath, JSON.stringify(settings, null, 2), "utf-8");
-      console.log(pc.green("✓"), pc.dim("Created .claude/settings.json"));
-    }
 
     if (!isClaudeCodeInstalled()) {
       console.log(pc.yellow("⚠"), "Claude Code CLI not detected");
