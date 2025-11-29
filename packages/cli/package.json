@@ -1,6 +1,6 @@
 {
   "name": "@codeplan/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for initializing and managing Codeplan projects",
   "type": "module",
   "license": "MIT",
@@ -9,13 +9,21 @@
     "url": "https://github.com/anthropics/codeplan",
     "directory": "packages/cli"
   },
-  "keywords": ["codeplan", "cli", "task-management", "ai", "claude"],
+  "keywords": [
+    "codeplan",
+    "cli",
+    "task-management",
+    "ai",
+    "claude"
+  ],
   "bin": {
     "codeplan": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
