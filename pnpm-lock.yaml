@@ -13,6 +13,9 @@ importers:
       '@codeplan/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@codeplan/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@tauri-apps/api':
         specifier: ^2
         version: 2.9.0
@@ -25,18 +28,12 @@ importers:
       '@tauri-apps/plugin-opener':
         specifier: ^2
         version: 2.5.2
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
       react:
         specifier: ^19.1.0
         version: 19.2.0
       react-dom:
         specifier: ^19.1.0
         version: 19.2.0(react@19.2.0)
-      tailwind-merge:
-        specifier: ^3.0.0
-        version: 3.4.0
       zustand:
         specifier: ^5.0.0
         version: 5.0.8(@types/react@19.2.7)(react@19.2.0)
@@ -74,9 +71,9 @@ importers:
       '@codeplan/core':
         specifier: workspace:*
         version: link:../../packages/core
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
+      '@codeplan/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       next:
         specifier: ^15.3.0
         version: 15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -86,9 +83,6 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.2.0(react@19.2.0)
-      tailwind-merge:
-        specifier: ^3.0.0
-        version: 3.4.0
       zustand:
         specifier: ^5.0.0
         version: 5.0.8(@types/react@19.2.7)(react@19.2.0)
@@ -174,6 +168,37 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+
+  packages/ui:
+    dependencies:
+      '@codeplan/core':
+        specifier: workspace:*
+        version: link:../core
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      tailwind-merge:
+        specifier: ^2.5.0
+        version: 2.6.0
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.7)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.0(react@19.2.0)
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.8.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.8.0
+        version: 5.8.3
 
 packages:
 
@@ -2045,8 +2070,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  tailwind-merge@3.4.0:
-    resolution: {integrity: sha512-uSaO4gnW+b3Y2aWoWfFpX62vn2sR3skfhbjsEnaBI81WD1wBLlHZe5sWf0AqjksNdYTbGBEd0UasQMT3SNV15g==}
+  tailwind-merge@2.6.0:
+    resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
 
   tailwindcss@3.4.18:
     resolution: {integrity: sha512-6A2rnmW5xZMdw11LYjhcI5846rt9pbLSabY5XPxo+XWdxwZaFEn47Go4NzFiHu9sNNmr/kXivP1vStfvMaK1GQ==}
@@ -3936,7 +3961,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  tailwind-merge@3.4.0: {}
+  tailwind-merge@2.6.0: {}
 
   tailwindcss@3.4.18(yaml@2.8.1):
     dependencies:
@@ -4004,6 +4029,34 @@ snapshots:
   ts-interface-checker@0.1.13: {}
 
   tslib@2.8.1: {}
+
+  tsup@8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.8.3)(yaml@2.8.1):
+    dependencies:
+      bundle-require: 5.1.0(esbuild@0.27.0)
+      cac: 6.7.14
+      chokidar: 4.0.3
+      consola: 3.4.2
+      debug: 4.4.3
+      esbuild: 0.27.0
+      fix-dts-default-cjs-exports: 1.0.1
+      joycon: 3.1.1
+      picocolors: 1.1.1
+      postcss-load-config: 6.0.1(jiti@2.6.1)(postcss@8.5.6)(yaml@2.8.1)
+      resolve-from: 5.0.0
+      rollup: 4.53.3
+      source-map: 0.7.6
+      sucrase: 3.35.1
+      tinyexec: 0.3.2
+      tinyglobby: 0.2.15
+      tree-kill: 1.2.2
+    optionalDependencies:
+      postcss: 8.5.6
+      typescript: 5.8.3
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
+      - tsx
+      - yaml
 
   tsup@8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)(yaml@2.8.1):
     dependencies:

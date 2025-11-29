@@ -1,4 +1,6 @@
-import { cn } from "@/lib/utils";
+"use client";
+
+import { cn } from "../lib/utils";
 import type { ItemType, ItemStatus, ItemPriority } from "@codeplan/core";
 
 interface BadgeProps {

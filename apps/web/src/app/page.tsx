@@ -1,5 +1,5 @@
 import { loadBacklog } from "@/actions/backlog";
-import { Dashboard } from "@/components/dashboard";
+import { Dashboard } from "@codeplan/ui";
 
 // Force dynamic rendering - data comes from local filesystem
 export const dynamic = "force-dynamic";

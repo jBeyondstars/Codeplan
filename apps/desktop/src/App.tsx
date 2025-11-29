@@ -2,7 +2,7 @@ import { useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { join } from "@tauri-apps/api/path";
 import { exists } from "@tauri-apps/plugin-fs";
-import { Dashboard } from "./components/dashboard";
+import { Dashboard } from "@codeplan/ui";
 import { useBacklogStore } from "./store/backlog";
 import {
   loadBacklog,

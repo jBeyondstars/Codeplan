@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useTransition } from "react";
 import type { BacklogItem, BacklogConfig } from "@codeplan/core";
 import { KanbanBoard } from "./kanban-board";
@@ -31,6 +33,7 @@ export function Dashboard({ initialItems, initialConfig, onArchive, onRestore, o
   useEffect(() => {
     setConfig(initialConfig);
   }, [initialConfig]);
+
   const [sortField, setSortField] = useState("created");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filterStatus, setFilterStatus] = useState<string>("all");
