@@ -11,7 +11,7 @@ import {
   getArchiveFolder,
 } from "@codeplan/core";
 
-const BACKLOG_PATH = join(process.cwd(), "..", "..", ".backlog");
+const CODEPLAN_PATH = join(process.cwd(), "..", "..", ".codeplan");
 
 export async function loadBacklog(): Promise<{
   items: BacklogItem[];
@@ -19,27 +19,27 @@ export async function loadBacklog(): Promise<{
   error?: string;
 }> {
   try {
-    const files = await readdir(BACKLOG_PATH);
+    const files = await readdir(CODEPLAN_PATH);
 
     // Load config
     let config: BacklogConfig | null = null;
     if (files.includes("config.yaml")) {
       const configContent = await readFile(
-        join(BACKLOG_PATH, "config.yaml"),
+        join(CODEPLAN_PATH, "config.yaml"),
         "utf-8"
       );
       config = parseConfig(configContent);
     }
 
-    // Load items (exclude archive folder and non-md files)
+    // Load items (exclude archive folder, README, and non-md files)
     const mdFiles = files.filter(
-      (f) => f.endsWith(".md") && f !== ARCHIVE_FOLDER
+      (f) => f.endsWith(".md") && f !== ARCHIVE_FOLDER && f !== "README.md"
     );
     const items: BacklogItem[] = [];
 
     for (const file of mdFiles) {
       try {
-        const content = await readFile(join(BACKLOG_PATH, file), "utf-8");
+        const content = await readFile(join(CODEPLAN_PATH, file), "utf-8");
         const item = parseItem(content, file);
         items.push(item);
       } catch (err) {
@@ -62,7 +62,7 @@ export async function archiveItem(
   itemId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const files = await readdir(BACKLOG_PATH);
+    const files = await readdir(CODEPLAN_PATH);
     const itemFile = files.find(
       (f) => f.endsWith(".md") && f.includes(itemId)
     );
@@ -71,13 +71,13 @@ export async function archiveItem(
       return { success: false, error: `Item ${itemId} not found` };
     }
 
-    const archiveFolder = join(BACKLOG_PATH, getArchiveFolder());
+    const archiveFolder = join(CODEPLAN_PATH, getArchiveFolder());
 
     // Create archive folder if it doesn't exist
     await mkdir(archiveFolder, { recursive: true });
 
     // Move file to archive
-    const sourcePath = join(BACKLOG_PATH, itemFile);
+    const sourcePath = join(CODEPLAN_PATH, itemFile);
     const destPath = join(archiveFolder, itemFile);
 
     await rename(sourcePath, destPath);
@@ -97,7 +97,7 @@ export async function loadArchivedItems(): Promise<{
   error?: string;
 }> {
   try {
-    const archivePath = join(BACKLOG_PATH, ARCHIVE_FOLDER);
+    const archivePath = join(CODEPLAN_PATH, ARCHIVE_FOLDER);
     const items: BacklogItem[] = [];
 
     // Check if archive folder exists
@@ -147,7 +147,7 @@ export async function restoreItem(
   itemId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const archivePath = join(BACKLOG_PATH, ARCHIVE_FOLDER);
+    const archivePath = join(CODEPLAN_PATH, ARCHIVE_FOLDER);
 
     // Search through archive month folders
     let monthFolders: string[];
@@ -173,7 +173,7 @@ export async function restoreItem(
 
       if (itemFile) {
         const sourcePath = join(monthPath, itemFile);
-        const destPath = join(BACKLOG_PATH, itemFile);
+        const destPath = join(CODEPLAN_PATH, itemFile);
 
         await rename(sourcePath, destPath);
         return { success: true };
