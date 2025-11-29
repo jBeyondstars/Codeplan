@@ -1,8 +1,6 @@
 import { spawnSync } from "node:child_process";
 import pc from "picocolors";
 
-const MCP_SERVER_PATH = "node_modules/@codeplan/mcp/dist/index.js";
-
 /**
  * Check if Claude Code CLI is installed
  */
@@ -26,15 +24,15 @@ export function registerMcpServer(): { success: boolean; message: string } {
   if (!isClaudeCodeInstalled()) {
     return {
       success: false,
-      message: "Claude Code CLI not found. Install it first, then run: claude mcp add codeplan node <path-to-mcp>",
+      message: "Claude Code CLI not found. Install it first, then run: claude mcp add codeplan npx @codeplan/mcp",
     };
   }
 
   try {
-    // Use --scope project to register for the current project only
+    // Use npx to run the MCP server - no local install required
     const result = spawnSync(
       "claude",
-      ["mcp", "add", "--scope", "project", "codeplan", "node", MCP_SERVER_PATH],
+      ["mcp", "add", "--scope", "project", "codeplan", "npx", "@codeplan/mcp"],
       {
         encoding: "utf-8",
         shell: true,
@@ -77,6 +75,6 @@ export function printManualMcpInstructions(): void {
   console.log();
   console.log(pc.yellow("To enable AI task management, register the MCP server:"));
   console.log();
-  console.log(pc.dim(`  claude mcp add codeplan node ${MCP_SERVER_PATH}`));
+  console.log(pc.dim("  claude mcp add codeplan npx @codeplan/mcp"));
   console.log();
 }
