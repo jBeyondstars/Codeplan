@@ -1,0 +1,36 @@
+project:
+  name: Codeplan
+  prefix: CP
+
+statuses:
+  - backlog
+  - todo
+  - in-progress
+  - review
+  - done
+
+types:
+  - feature
+  - bug
+  - task
+  - chore
+  - spike
+
+priorities:
+  - low
+  - medium
+  - high
+  - critical
+
+sprints:
+  current: 1
+  duration: 14
+  start_date: 2025-11-25
+
+labels:
+  - frontend
+  - backend
+  - core
+  - ui
+  - parser
+  - docs
