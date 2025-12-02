@@ -1,6 +1,6 @@
-import { readDir, readTextFile, mkdir, rename } from "@tauri-apps/plugin-fs";
+import { readDir, readTextFile, mkdir, rename, writeTextFile } from "@tauri-apps/plugin-fs";
 import { join } from "@tauri-apps/api/path";
-import { parseItem, parseConfig, type BacklogItem, type BacklogConfig, ARCHIVE_FOLDER, getArchiveFolder } from "@codeplan/core";
+import { parseItem, parseConfig, serializeItem, generateItemId, type BacklogItem, type BacklogConfig, ARCHIVE_FOLDER, getArchiveFolder } from "@codeplan/core";
 
 let codeplanPath: string | null = null;
 
@@ -204,6 +204,142 @@ export async function restoreItem(
     return {
       success: false,
       error: err instanceof Error ? err.message : "Failed to restore item",
+    };
+  }
+}
+
+export async function updateItemStatus(
+  itemId: string,
+  newStatus: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!codeplanPath) {
+    return { success: false, error: "No project folder selected" };
+  }
+
+  try {
+    const entries = await readDir(codeplanPath);
+    const itemEntry = entries.find(
+      (e) => e.name?.endsWith(".md") && e.name?.includes(itemId)
+    );
+
+    if (!itemEntry || !itemEntry.name) {
+      return { success: false, error: `Item ${itemId} not found` };
+    }
+
+    const filePath = await join(codeplanPath, itemEntry.name);
+    const content = await readTextFile(filePath);
+    const item = parseItem(content, itemEntry.name);
+
+    item.status = newStatus;
+    item.updated = new Date().toISOString().split("T")[0];
+
+    const updatedContent = serializeItem(item);
+    await writeTextFile(filePath, updatedContent);
+
+    return { success: true };
+  } catch (err) {
+    console.error(`Failed to update status for ${itemId}:`, err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to update item status",
+    };
+  }
+}
+
+export async function createItem(
+  itemData: Partial<BacklogItem>,
+  config: BacklogConfig | null
+): Promise<{ success: boolean; error?: string; item?: BacklogItem }> {
+  if (!codeplanPath) {
+    return { success: false, error: "No project folder selected" };
+  }
+
+  try {
+    const entries = await readDir(codeplanPath);
+    const existingIds = entries
+      .filter((e) => e.name?.endsWith(".md") && e.name !== "README.md")
+      .map((e) => {
+        const match = e.name?.match(/^([A-Z]+-\d+)\.md$/);
+        return match ? match[1] : null;
+      })
+      .filter((id): id is string => id !== null);
+
+    const typeToPrefix: Record<string, string> = {
+      feature: "FEAT",
+      bug: "BUG",
+      task: "TASK",
+      chore: "CHORE",
+      spike: "SPIKE",
+    };
+
+    const prefix = typeToPrefix[itemData.type || "task"] || config?.project.prefix || "TASK";
+    const id = generateItemId(prefix, existingIds);
+
+    const now = new Date();
+    const item: BacklogItem = {
+      id,
+      title: itemData.title || "Untitled",
+      type: itemData.type || "task",
+      status: itemData.status || "backlog",
+      priority: itemData.priority || "medium",
+      description: itemData.description || "",
+      created: now,
+      tasks: [],
+      ...itemData,
+    };
+
+    const content = serializeItem(item);
+    const filePath = await join(codeplanPath, `${id}.md`);
+    await writeTextFile(filePath, content);
+
+    return { success: true, item };
+  } catch (err) {
+    console.error("Failed to create item:", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to create item",
+    };
+  }
+}
+
+export async function updateItem(
+  itemId: string,
+  updates: Partial<BacklogItem>
+): Promise<{ success: boolean; error?: string; item?: BacklogItem }> {
+  if (!codeplanPath) {
+    return { success: false, error: "No project folder selected" };
+  }
+
+  try {
+    const entries = await readDir(codeplanPath);
+    const itemEntry = entries.find(
+      (e) => e.name?.endsWith(".md") && e.name?.includes(itemId)
+    );
+
+    if (!itemEntry || !itemEntry.name) {
+      return { success: false, error: `Item ${itemId} not found` };
+    }
+
+    const filePath = await join(codeplanPath, itemEntry.name);
+    const content = await readTextFile(filePath);
+    const item = parseItem(content, itemEntry.name);
+
+    const updatedItem: BacklogItem = {
+      ...item,
+      ...updates,
+      id: item.id,
+      updated: new Date(),
+    };
+
+    const updatedContent = serializeItem(updatedItem);
+    await writeTextFile(filePath, updatedContent);
+
+    return { success: true, item: updatedItem };
+  } catch (err) {
+    console.error(`Failed to update item ${itemId}:`, err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to update item",
     };
   }
 }

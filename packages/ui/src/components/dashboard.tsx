@@ -5,6 +5,8 @@ import type { BacklogItem, BacklogConfig } from "@codeplan/core";
 import { KanbanBoard } from "./kanban-board";
 import { BacklogTable } from "./backlog-table";
 import { ArchiveView } from "./archive-view";
+import { ItemEditor } from "./item-editor";
+import { Dialog } from "./dialog";
 import { cn } from "../lib/utils";
 
 type View = "kanban" | "table" | "archive";
@@ -15,14 +17,28 @@ interface DashboardProps {
   onArchive?: (id: string) => Promise<{ success: boolean; error?: string }>;
   onRestore?: (id: string) => Promise<{ success: boolean; error?: string }>;
   onLoadArchived?: () => Promise<{ items: BacklogItem[]; error?: string }>;
+  onStatusChange?: (itemId: string, newStatus: string) => Promise<{ success: boolean; error?: string }>;
+  onCreateItem?: (itemData: Partial<BacklogItem>) => Promise<{ success: boolean; error?: string; item?: BacklogItem }>;
+  onUpdateItem?: (itemId: string, updates: Partial<BacklogItem>) => Promise<{ success: boolean; error?: string; item?: BacklogItem }>;
 }
 
-export function Dashboard({ initialItems, initialConfig, onArchive, onRestore, onLoadArchived }: DashboardProps) {
+export function Dashboard({
+  initialItems,
+  initialConfig,
+  onArchive,
+  onRestore,
+  onLoadArchived,
+  onStatusChange,
+  onCreateItem,
+  onUpdateItem
+}: DashboardProps) {
   const [view, setView] = useState<View>("kanban");
   const [items, setItems] = useState(initialItems);
   const [archivedItems, setArchivedItems] = useState<BacklogItem[]>([]);
   const [archiveLoaded, setArchiveLoaded] = useState(false);
   const [config, setConfig] = useState(initialConfig);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<BacklogItem | undefined>(undefined);
 
   // Update items when initialItems changes (after loading)
   useEffect(() => {
@@ -136,6 +152,54 @@ export function Dashboard({ initialItems, initialConfig, onArchive, onRestore, o
     }
   };
 
+  const handleStatusChange = (itemId: string, newStatus: string) => {
+    if (!onStatusChange) return;
+    startTransition(async () => {
+      const result = await onStatusChange(itemId, newStatus);
+      if (result.success) {
+        setItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === itemId ? { ...item, status: newStatus as BacklogItem["status"] } : item
+          )
+        );
+      }
+    });
+  };
+
+  const handleOpenEditor = (item?: BacklogItem) => {
+    setEditingItem(item);
+    setIsEditorOpen(true);
+  };
+
+  const handleCloseEditor = () => {
+    setIsEditorOpen(false);
+    setEditingItem(undefined);
+  };
+
+  const handleSaveItem = async (itemData: Partial<BacklogItem>) => {
+    if (editingItem && onUpdateItem) {
+      startTransition(async () => {
+        const result = await onUpdateItem(editingItem.id, itemData);
+        if (result.success && result.item) {
+          setItems((prevItems) =>
+            prevItems.map((item) =>
+              item.id === editingItem.id ? result.item! : item
+            )
+          );
+          handleCloseEditor();
+        }
+      });
+    } else if (onCreateItem) {
+      startTransition(async () => {
+        const result = await onCreateItem(itemData);
+        if (result.success && result.item) {
+          setItems((prevItems) => [...prevItems, result.item!]);
+          handleCloseEditor();
+        }
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen p-6">
       <header className="mb-6">
@@ -151,6 +215,16 @@ export function Dashboard({ initialItems, initialConfig, onArchive, onRestore, o
           </div>
 
           <div className="flex items-center gap-2">
+            {onCreateItem && (
+              <button
+                type="button"
+                onClick={() => handleOpenEditor()}
+                className="px-4 py-2 text-sm rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-medium hover:opacity-90 transition-opacity"
+              >
+                + New Item
+              </button>
+            )}
+
             {/* View Toggle */}
             <div className="flex rounded-lg border border-[var(--border)] overflow-hidden">
               <button
@@ -218,6 +292,7 @@ export function Dashboard({ initialItems, initialConfig, onArchive, onRestore, o
             itemsByStatus={itemsByStatus}
             statuses={statuses}
             onArchive={handleArchive}
+            onStatusChange={handleStatusChange}
           />
         )}
         {view === "table" && (
@@ -232,6 +307,19 @@ export function Dashboard({ initialItems, initialConfig, onArchive, onRestore, o
           <ArchiveView items={archivedItems} onRestore={handleRestore} />
         )}
       </main>
+
+      <Dialog
+        open={isEditorOpen}
+        onClose={handleCloseEditor}
+        title={editingItem ? "Edit Item" : "Create New Item"}
+      >
+        <ItemEditor
+          item={editingItem}
+          config={config}
+          onSave={handleSaveItem}
+          onCancel={handleCloseEditor}
+        />
+      </Dialog>
     </div>
   );
 }

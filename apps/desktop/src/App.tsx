@@ -3,11 +3,15 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { join } from "@tauri-apps/api/path";
 import { exists } from "@tauri-apps/plugin-fs";
 import { Dashboard } from "@codeplan/ui";
+import type { BacklogItem } from "@codeplan/core";
 import { useBacklogStore } from "./store/backlog";
 import {
   loadBacklog,
   archiveItem,
   restoreItem,
+  updateItemStatus,
+  createItem,
+  updateItem,
   setCodeplanPath,
 } from "./services/backlog";
 import "./index.css";
@@ -71,6 +75,33 @@ function App() {
     return result;
   };
 
+  const handleStatusChange = async (itemId: string, newStatus: string) => {
+    const result = await updateItemStatus(itemId, newStatus);
+    if (result.success) {
+      const backlog = await loadBacklog();
+      setItems(backlog.items);
+    }
+    return result;
+  };
+
+  const handleCreateItem = async (itemData: Partial<BacklogItem>) => {
+    const result = await createItem(itemData, config);
+    if (result.success) {
+      const backlog = await loadBacklog();
+      setItems(backlog.items);
+    }
+    return result;
+  };
+
+  const handleUpdateItem = async (itemId: string, updates: Partial<BacklogItem>) => {
+    const result = await updateItem(itemId, updates);
+    if (result.success) {
+      const backlog = await loadBacklog();
+      setItems(backlog.items);
+    }
+    return result;
+  };
+
   if (!projectPath) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-8">
@@ -105,6 +136,9 @@ function App() {
       initialConfig={config}
       onArchive={handleArchive}
       onRestore={handleRestore}
+      onStatusChange={handleStatusChange}
+      onCreateItem={handleCreateItem}
+      onUpdateItem={handleUpdateItem}
     />
   );
 }
